@@ -87,6 +87,7 @@ ALLWIFIBOARDS:= \
 	prpl_haze \
 	qihoo_360v6 \
 	qnap_301w \
+	redmi_ax3000 \
 	redmi_ax6 \
 	skspruce_wia3300-20 \
 	spectrum_sax1v1k \
@@ -293,6 +294,7 @@ $(eval $(call generate-ipq-wifi-package,netgear_wax630,Netgear WAX630))
 $(eval $(call generate-ipq-wifi-package,prpl_haze,prpl Haze))
 $(eval $(call generate-ipq-wifi-package,qihoo_360v6,Qihoo 360V6))
 $(eval $(call generate-ipq-wifi-package,qnap_301w,QNAP 301w))
+$(eval $(call generate-ipq-wifi-package,redmi_ax3000,Redmi AX3000))
 $(eval $(call generate-ipq-wifi-package,redmi_ax6,Redmi AX6))
 $(eval $(call generate-ipq-wifi-package,skspruce_wia3300-20,SKSpruce WIA3300-20))
 $(eval $(call generate-ipq-wifi-package,spectrum_sax1v1k,Spectrum SAX1V1K))
@@ -337,5 +339,12 @@ $(eval $(call generate-ipq-wifi-package,zyxel_nbg7815,Zyxel NBG7815))
 $(eval $(call generate-ipq-wifi-package,zyxel_nwa110ax,Zyxel NWA110AX))
 $(eval $(call generate-ipq-wifi-package,zyxel_nwa210ax,Zyxel NWA210AX))
 $(eval $(call generate-ipq-wifi-package,zyxel_scr50axe,Zyxel SCR50AXE))
+
+# Redmi AX3000 (RA81) board data is not (yet) part of the upstream
+# qca-wireless repository, so it is shipped from the local files/ directory.
+define Package/ipq-wifi-redmi_ax3000/install-overlay
+	$(call ipq-wifi-install-one,$(CURDIR)/files/board-redmi_ax3000.ipq5018,redmi_ax3000)
+	$(call ipq-wifi-install-one,$(CURDIR)/files/board-redmi_ax3000.qcn6122,redmi_ax3000)
+endef
 
 $(foreach PACKAGE,$(ALLWIFIPACKAGES),$(eval $(call BuildPackage,$(PACKAGE))))

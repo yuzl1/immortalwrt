@@ -166,6 +166,13 @@ linksys_mx_pre_upgrade() {
 }
 
 platform_check_image() {
+	case "$(board_name)" in
+	redmi,ax3000)
+		mi_dualboot_check_image "$1"
+		return $?
+		;;
+	esac
+
 	return 0;
 }
 
@@ -179,6 +186,9 @@ platform_pre_upgrade() {
 
 platform_do_upgrade() {
 	case "$(board_name)" in
+	redmi,ax3000)
+		mi_dualboot_do_upgrade "$1"
+		;;
 	cmcc,mr3000d-ci|\
 	cmcc,pz-l8|\
 	cmcc,rax3000q|\

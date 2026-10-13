@@ -382,6 +382,27 @@ define Device/xiaomi_redmi-ax5400
 endef
 TARGET_DEVICES += xiaomi_redmi-ax5400
 
+# The Redmi AX3000 image is a full UBI (kernel + rootfs) matching the vendor
+# rootfs/rootfs_1 slots, so it can be written both from U-Boot and sysupgrade.
+define Device/redmi_ax3000
+	$(call Device/FitImage)
+	$(call Device/UbiFit)
+	DEVICE_VENDOR := Redmi
+	DEVICE_MODEL := AX3000
+	DEVICE_ALT0_VENDOR := Xiaomi
+	DEVICE_ALT0_MODEL := CR880x
+	DEVICE_ALT0_VARIANT := (M79/M81)
+	DEVICE_DTS := ipq5018-redmi-ax3000
+	DEVICE_DTS_CONFIG := config@mp02.1
+	SOC := ipq5018
+	BLOCKSIZE := 128k
+	PAGESIZE := 2048
+	IMAGES := factory.ubi
+	DEVICE_PACKAGES := ath11k-firmware-ipq5018-qcn6122 \
+		ipq-wifi-redmi_ax3000
+endef
+TARGET_DEVICES += redmi_ax3000
+
 define Device/yuncore_ax830
 	$(call Device/FitImage)
 	$(call Device/UbiFit)
