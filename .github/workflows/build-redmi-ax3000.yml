@@ -61,6 +61,7 @@ jobs:
       - name: Build firmware
         run: |
           set -o pipefail
+          df -h / >> /tmp/build.log
           make -j"$(nproc)" V=s 2>&1 | tee /tmp/build.log
 
       - name: Show build log on failure
@@ -72,6 +73,22 @@ jobs:
             tail -n 500 /tmp/build.log || true
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+
+          # Annotations are readable without repository admin rights, so
+          # surface the important lines here to make the failure debuggable
+          # from the public API.
+          echo "::error ::disk: $(df -h / | tail -n1 | tr -s ' ')"
+          n=0
+          tail -n 400 /tmp/build.log \
+            | grep -nE 'Error|error:|ERROR|fatal|No space left|undefined reference|Segmentation|make\[[0-9]+\]: \*\*\*' \
+            | tail -n 8 \
+            | while IFS= read -r line; do
+                echo "::error ::${line:0:900}"
+              done
+          tail -n 3 /tmp/build.log | while IFS= read -r line; do
+            echo "::error ::tail: ${line:0:900}"
+          done
+          exit 0
 
       - name: Collect firmware
         run: |
