@@ -10,6 +10,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
@@ -74,21 +76,33 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
-          # Annotations are readable without repository admin rights, so
-          # surface the important lines here to make the failure debuggable
-          # from the public API.
+          # Annotations are readable without repository admin rights.
           echo "::error ::disk: $(df -h / | tail -n1 | tr -s ' ')"
-          n=0
-          tail -n 400 /tmp/build.log \
-            | grep -nE 'Error|error:|ERROR|fatal|No space left|undefined reference|Segmentation|make\[[0-9]+\]: \*\*\*' \
-            | tail -n 8 \
-            | while IFS= read -r line; do
-                echo "::error ::${line:0:900}"
-              done
-          tail -n 3 /tmp/build.log | while IFS= read -r line; do
-            echo "::error ::tail: ${line:0:900}"
-          done
-          exit 0
+          tail -n 600 /tmp/build.log > /tmp/window.log || true
+          n=$(grep -nE 'make\[[0-9]+\]: \*\*\*|\*\*\* \[' /tmp/window.log | head -1 | cut -d: -f1)
+          if [ -n "$n" ]; then
+            s=$((n > 9 ? n - 9 : 1))
+            sed -n "${s},${n}p" /tmp/window.log | while IFS= read -r line; do
+              echo "::error ::ctx: ${line:0:850}"
+            done
+          else
+            tail -n 6 /tmp/build.log | while IFS= read -r line; do
+              echo "::error ::tail: ${line:0:850}"
+            done
+          fi
+
+      - name: Save full build log to build-log branch
+        if: failure()
+        run: |
+          cp /tmp/build.log build-failure.log
+          gzip -9 -f build-failure.log
+          ls -l build-failure.log.gz
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B build-log
+          git add -f build-failure.log.gz
+          git commit -m "build failure log for ${GITHUB_SHA}" || true
+          git push -f origin build-log
 
       - name: Collect firmware
         run: |
