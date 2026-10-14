@@ -94,44 +94,6 @@ jobs:
             exit 1
           fi
 
-      # TEMPORARY helper: dump the arm32 kernel config as generated with the
-      # real package set of this build, so it can be committed as a complete
-      # config-6.18 for the arm subtarget. Removed again afterwards.
-      - name: Dump the complete arm32 kernel config (temporary helper)
-        run: |
-          # keep the output in /tmp/build.log so the failure handler uploads it
-          exec > >(tee /tmp/build.log) 2>&1
-          set -x
-          make -j"$(nproc)" prepare-tmpinfo >/dev/null 2>&1 || true
-          KDIR=$(echo "$PWD"/build_dir/target-arm_*/linux-qualcommax_arm/linux-*)
-          ls -d "$KDIR"
-          ./scripts/kconfig.pl + + \
-            target/linux/generic/config-6.18 \
-            target/linux/qualcommax/config-6.18 \
-            target/linux/qualcommax/arm/config-6.18 > "$KDIR/.config.target"
-          awk '/^(#[[:space:]]+)?CONFIG_KERNEL/{sub("CONFIG_KERNEL_","CONFIG_");print}' .config >> "$KDIR/.config.target"
-          printf '# CONFIG_KALLSYMS_EXTRA_PASS is not set\n# CONFIG_KALLSYMS_ALL is not set\nCONFIG_KALLSYMS_UNCOMPRESSED=y\n' >> "$KDIR/.config.target"
-          ./scripts/package-metadata.pl kconfig tmp/.packageinfo .config 6.18 > "$KDIR/.config.override"
-          echo "--- diagnostics ---"
-          echo "packageinfo size: $(wc -c < tmp/.packageinfo 2>/dev/null || echo missing)"
-          echo "override size:    $(wc -c < "$KDIR/.config.override")  lines: $(wc -l < "$KDIR/.config.override")"
-          grep -E "^(CONFIG_(CFG80211|MAC80211|ATH11K|ATH11K_AHB|PINCTRL_IPQ5018)=)|^# CONFIG_(CFG80211|MAC80211|ATH11K|ATH11K_AHB) is not set" "$KDIR/.config.override" | head
-          echo "--- .config package selections ---"
-          grep -E "^CONFIG_PACKAGE_(kmod-ath11k|kmod-mac80211|kmod-cfg80211|wpad|kmod-usb-dwc3)" .config | head
-          ./scripts/kconfig.pl 'm+' '+' "$KDIR/.config.target" /dev/null "$KDIR/.config.override" > "$KDIR/.config"
-          # kconfig validates the compiler, so use the host gcc here (the
-          # cross toolchain does not exist yet at this stage).
-          make -C "$KDIR" ARCH=arm CROSS_COMPILE= CC=gcc HOSTCC=gcc olddefconfig </dev/null
-          cp "$KDIR/.config" arm32-kernel.config
-          wc -l arm32-kernel.config
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -B kernel-config
-          git add -f arm32-kernel.config
-          git commit -m "arm32 kernel config dump" || true
-          git push -f origin kernel-config
-          exit 1
-
       - name: Build firmware
         run: |
           set -o pipefail
