@@ -2,7 +2,16 @@
 
 /dts-v1/;
 
+/*
+ * The arm subtarget builds this same board for 32-bit ARM (the device's
+ * bootloader cannot start an AArch64 kernel); ipq5018-arm.dtsi reuses the
+ * arm64 SoC description with the arch specific bits overridden.
+ */
+#ifdef __ARM32__
+#include "ipq5018-arm.dtsi"
+#else
 #include "ipq5018.dtsi"
+#endif
 #include "ipq5018-ess.dtsi"
 #include "ipq5018-qcn6122.dtsi"
 

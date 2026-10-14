@@ -37,12 +37,12 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: Configure the Redmi AX3000 profile
+      - name: Configure the Redmi AX3000 (32-bit ARM) profile
         run: |
           cat <<'EOF' | sed -E 's/^[[:space:]]+//' > .config
           CONFIG_TARGET_qualcommax=y
-          CONFIG_TARGET_qualcommax_ipq50xx=y
-          CONFIG_TARGET_qualcommax_ipq50xx_DEVICE_redmi_ax3000=y
+          CONFIG_TARGET_qualcommax_arm=y
+          CONFIG_TARGET_qualcommax_arm_DEVICE_redmi_ax3000=y
           CONFIG_PACKAGE_luci=y
           CONFIG_PACKAGE_luci-ssl-openssl=y
           CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
@@ -51,16 +51,20 @@ jobs:
           make defconfig
           echo '### Selected config' >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
-          grep -E 'TARGET_qualcommax|DEVICE_redmi_ax3000|PACKAGE_luci' .config \
+          grep -E 'TARGET_qualcommax|CONFIG_ARCH_QCOM_RESERVE_SMEM|DEVICE_redmi_ax3000|PACKAGE_luci' .config \
             >> "$GITHUB_STEP_SUMMARY" || true
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
           # Fail fast if the device did not survive defconfig, otherwise the
           # build runs for more than an hour before failing on the metadata
           # step with an empty json_info_files directory.
-          grep -q '^CONFIG_TARGET_qualcommax_ipq50xx_DEVICE_redmi_ax3000=y' .config || {
+          grep -q '^CONFIG_TARGET_qualcommax_arm_DEVICE_redmi_ax3000=y' .config || {
             echo "::error ::redmi_ax3000 device selection missing from .config"
             grep -E 'TARGET_qualcommax' .config || true
+            exit 1
+          }
+          grep -q '^CONFIG_ARCH_QCOM_RESERVE_SMEM=y' .config || {
+            echo "::error ::CONFIG_ARCH_QCOM_RESERVE_SMEM is missing"
             exit 1
           }
 
@@ -127,8 +131,8 @@ jobs:
       - name: Collect firmware
         run: |
           mkdir -p output
-          cp -v bin/targets/qualcommax/ipq50xx/*redmi_ax3000* output/ || true
-          cp -v bin/targets/qualcommax/ipq50xx/sha256sums output/ || true
+          cp -v bin/targets/qualcommax/arm/*redmi_ax3000* output/ || true
+          cp -v bin/targets/qualcommax/arm/sha256sums output/ || true
           ls -l output
 
       - name: Upload firmware

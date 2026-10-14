@@ -1,0 +1,19 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+/*
+ * 32-bit ARM shim for the IPQ5018 description.
+ *
+ * The arm64 SoC description is reused as-is (it is the same hardware, and the
+ * drivers are shared), only the few genuinely architecture specific bits are
+ * overridden here.
+ *
+ * "ipq5018.dtsi" resolves to arch/arm64/boot/dts/qcom/ipq5018.dtsi, the arm
+ * subtarget adds that directory to the include path.
+ */
+
+#include "ipq5018.dtsi"
+
+/ {
+	pmu {
+		compatible = "arm,cortex-a7-pmu";
+	};
+};
