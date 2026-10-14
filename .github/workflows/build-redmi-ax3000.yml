@@ -112,6 +112,12 @@ jobs:
           awk '/^(#[[:space:]]+)?CONFIG_KERNEL/{sub("CONFIG_KERNEL_","CONFIG_");print}' .config >> "$KDIR/.config.target"
           printf '# CONFIG_KALLSYMS_EXTRA_PASS is not set\n# CONFIG_KALLSYMS_ALL is not set\nCONFIG_KALLSYMS_UNCOMPRESSED=y\n' >> "$KDIR/.config.target"
           ./scripts/package-metadata.pl kconfig tmp/.packageinfo .config 6.18 > "$KDIR/.config.override"
+          echo "--- diagnostics ---"
+          echo "packageinfo size: $(wc -c < tmp/.packageinfo 2>/dev/null || echo missing)"
+          echo "override size:    $(wc -c < "$KDIR/.config.override")  lines: $(wc -l < "$KDIR/.config.override")"
+          grep -E "^(CONFIG_(CFG80211|MAC80211|ATH11K|ATH11K_AHB|PINCTRL_IPQ5018)=)|^# CONFIG_(CFG80211|MAC80211|ATH11K|ATH11K_AHB) is not set" "$KDIR/.config.override" | head
+          echo "--- .config package selections ---"
+          grep -E "^CONFIG_PACKAGE_(kmod-ath11k|kmod-mac80211|kmod-cfg80211|wpad|kmod-usb-dwc3)" .config | head
           ./scripts/kconfig.pl 'm+' '+' "$KDIR/.config.target" /dev/null "$KDIR/.config.override" > "$KDIR/.config"
           # kconfig validates the compiler, so use the host gcc here (the
           # cross toolchain does not exist yet at this stage).
