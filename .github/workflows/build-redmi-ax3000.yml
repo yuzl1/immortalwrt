@@ -113,7 +113,9 @@ jobs:
           printf '# CONFIG_KALLSYMS_EXTRA_PASS is not set\n# CONFIG_KALLSYMS_ALL is not set\nCONFIG_KALLSYMS_UNCOMPRESSED=y\n' >> "$KDIR/.config.target"
           ./scripts/package-metadata.pl kconfig tmp/.packageinfo .config 6.18 > "$KDIR/.config.override"
           ./scripts/kconfig.pl 'm+' '+' "$KDIR/.config.target" /dev/null "$KDIR/.config.override" > "$KDIR/.config"
-          make -C "$KDIR" ARCH=arm CROSS_COMPILE= CC=true olddefconfig </dev/null
+          # kconfig validates the compiler, so use the host gcc here (the
+          # cross toolchain does not exist yet at this stage).
+          make -C "$KDIR" ARCH=arm CROSS_COMPILE= CC=gcc HOSTCC=gcc olddefconfig </dev/null
           cp "$KDIR/.config" arm32-kernel.config
           wc -l arm32-kernel.config
           git config user.name "github-actions[bot]"
