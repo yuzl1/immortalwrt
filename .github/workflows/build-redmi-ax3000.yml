@@ -68,7 +68,9 @@ jobs:
         run: |
           # These files are only fully evaluated during the build, so a syntax
           # error there would otherwise surface after compiling for an hour.
-          if ! make -f package/firmware/ipq-wifi/Makefile -n \
+          # -C is important: the build system enters the package directory, and
+          # some parse errors only show up in that invocation.
+          if ! make -C package/firmware/ipq-wifi -n \
                  "TOPDIR=$PWD" CONFIG_PACKAGE_ipq-wifi-redmi_ax3000=y >/dev/null; then
             echo "::error ::ipq-wifi Makefile failed to parse"
             exit 1

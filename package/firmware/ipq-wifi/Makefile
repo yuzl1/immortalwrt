@@ -16,6 +16,15 @@ include $(INCLUDE_DIR)/package.mk
 define Build/Compile
 endef
 
+# The Redmi AX3000 (RA81) board data is not (yet) part of the upstream
+# qca-wireless repository, so it is shipped in files/ and copied into the
+# package build dir, where the generated install-overlay picks it up.
+# (Defining Package/.../install-overlay here breaks the Makefile parse.)
+define Build/Prepare
+	$(call Build/Prepare/Default)
+	[ ! -d ./files ] || $(CP) ./files/. $(PKG_BUILD_DIR)/
+endef
+
 # Use ath10k-bdencoder from https://github.com/qca/qca-swiss-army-knife.git
 # to generate the board-* files here.
 #
@@ -339,12 +348,5 @@ $(eval $(call generate-ipq-wifi-package,zyxel_nbg7815,Zyxel NBG7815))
 $(eval $(call generate-ipq-wifi-package,zyxel_nwa110ax,Zyxel NWA110AX))
 $(eval $(call generate-ipq-wifi-package,zyxel_nwa210ax,Zyxel NWA210AX))
 $(eval $(call generate-ipq-wifi-package,zyxel_scr50axe,Zyxel SCR50AXE))
-
-# Redmi AX3000 (RA81) board data is not (yet) part of the upstream
-# qca-wireless repository, so it is shipped from the local files/ directory.
-define Package/ipq-wifi-redmi_ax3000/install-overlay
-  $(foreach IPQ_WIFI_BOARD_FILE,$(wildcard $(CURDIR)/files/board-redmi_ax3000.*),\
-    $(call ipq-wifi-install-one,$(IPQ_WIFI_BOARD_FILE),redmi_ax3000))
-endef
 
 $(foreach PACKAGE,$(ALLWIFIPACKAGES),$(eval $(call BuildPackage,$(PACKAGE))))
