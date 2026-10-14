@@ -132,10 +132,15 @@
 		nand-ecc-strength = <8>;
 		nand-bus-width = <8>;
 
+#ifndef __ARM32__
 		/*
-		 * The mtd layout (including rootfs/rootfs_1 and the ART
-		 * partition) is passed on by the bootloader via SMEM, only the
-		 * nvmem layout of the ART partition is described here.
+		 * On the 32-bit ARM build the partition table is NOT provided
+		 * through SMEM: the vendor U-Boot passes it on the kernel
+		 * command line (mtdparts=nand0:...(fs),${msmparts}), and the
+		 * arm subtarget therefore disables CONFIG_MTD_QCOMSMEM_PARTS.
+		 * Declaring qcom,smem-part there makes the kernel look for a
+		 * table that does not exist, so it ends up without partitions
+		 * and cannot find the rootfs (the device does not boot at all).
 		 */
 		partitions {
 			compatible = "qcom,smem-part";
@@ -163,6 +168,7 @@
 				};
 			};
 		};
+#endif
 	};
 };
 
@@ -177,8 +183,10 @@
 &gmac0 {
 	status = "okay";
 
+#ifndef __ARM32__
 	nvmem-cells = <&macaddr_art_6 (0)>;
 	nvmem-cell-names = "mac-address";
+#endif
 };
 
 /* MAC1 ---SGMII---> QCA8337 SerDes (DSA conduit) */
@@ -187,8 +195,10 @@
 
 	phy-mode = "sgmii";
 
+#ifndef __ARM32__
 	nvmem-cells = <&macaddr_art_0 (0)>;
 	nvmem-cell-names = "mac-address";
+#endif
 
 	fixed-link {
 		speed = <1000>;
@@ -282,8 +292,10 @@
 				label = "wan";
 				phy-handle = <&qca8337_3>;
 
+#ifndef __ARM32__
 				nvmem-cells = <&macaddr_art_6 (0)>;
 				nvmem-cell-names = "mac-address";
+#endif
 			};
 
 			ethernet-port@5 {
