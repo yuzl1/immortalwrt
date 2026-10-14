@@ -99,6 +99,8 @@ jobs:
       # config-6.18 for the arm subtarget. Removed again afterwards.
       - name: Dump the complete arm32 kernel config (temporary helper)
         run: |
+          # keep the output in /tmp/build.log so the failure handler uploads it
+          exec > >(tee /tmp/build.log) 2>&1
           set -x
           make -j"$(nproc)" prepare-tmpinfo >/dev/null 2>&1 || true
           KDIR=$(echo "$PWD"/build_dir/target-arm_*/linux-qualcommax_arm/linux-*)
