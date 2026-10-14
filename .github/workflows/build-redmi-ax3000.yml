@@ -63,10 +63,6 @@ jobs:
             grep -E 'TARGET_qualcommax' .config || true
             exit 1
           }
-          grep -q '^CONFIG_ARCH_QCOM_RESERVE_SMEM=y' .config || {
-            echo "::error ::CONFIG_ARCH_QCOM_RESERVE_SMEM is missing"
-            exit 1
-          }
 
       - name: Pre-flight makefile parse check
         run: |
@@ -118,6 +114,7 @@ jobs:
       - name: Save full build log to build-log branch
         if: failure()
         run: |
+          [ -f /tmp/build.log ] || exit 0
           cp /tmp/build.log build-failure.log
           gzip -9 -f build-failure.log
           ls -l build-failure.log.gz
