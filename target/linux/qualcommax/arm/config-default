@@ -1,5 +1,26 @@
-CONFIG_ARCH_MMAP_RND_BITS=8
+# 32-bit ARM (armv7) kernel configuration for IPQ50xx.
+#
+# The AArch64 oriented config-6.18 of the target does not carry these, and
+# they have to be set explicitly: without ARM_PATCH_PHYS_VIRT kconfig asks
+# for PHYS_OFFSET (whose default 0 is not a valid value), and the arm32 core
+# options are otherwise left to their (non bootable) defaults.
+
+CONFIG_ARCH_MULTIPLATFORM=y
+CONFIG_ARCH_MULTI_V6_V7=y
+CONFIG_ARCH_MULTI_V7=y
+CONFIG_ARCH_QCOM=y
 CONFIG_ARCH_QCOM_RESERVE_SMEM=y
+CONFIG_ARCH_MMAP_RND_BITS=8
+CONFIG_ARM_PATCH_PHYS_VIRT=y
+CONFIG_ARM_THUMB=y
+CONFIG_CPU_THUMB_CAPABLE=y
+CONFIG_CPU_V7=y
+CONFIG_NEON=y
+CONFIG_SMP=y
+CONFIG_SMP_ON_UP=y
+CONFIG_VFP=y
+CONFIG_VFPv3=y
+
 CONFIG_IPQ_APSS_5018=y
 CONFIG_PCIE_DW_PLAT=y
 # CONFIG_USB_QCOM_DIAG_BRIDGE is not set

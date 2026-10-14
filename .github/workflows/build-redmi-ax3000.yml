@@ -80,6 +80,20 @@ jobs:
       - name: Download package sources
         run: make -j"$(nproc)" download
 
+      - name: Prepare kernel and generate its config
+        run: |
+          # Runs the kernel download/patch/configure steps on their own so that
+          # config problems surface in minutes instead of after the whole
+          # toolchain has been built. The prepared tree is reused below.
+          set -o pipefail
+          if ! make -j"$(nproc)" target/linux/prepare V=s 2>&1 | tee /tmp/kernel-prepare.log | tail -n 40; then
+            echo "::error ::kernel prepare failed"
+            tail -n 60 /tmp/kernel-prepare.log | while IFS= read -r line; do
+              echo "::error ::${line:0:850}"
+            done
+            exit 1
+          fi
+
       - name: Build firmware
         run: |
           set -o pipefail
