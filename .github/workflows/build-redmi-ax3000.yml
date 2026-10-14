@@ -64,6 +64,17 @@ jobs:
             exit 1
           }
 
+      - name: Pre-flight makefile parse check
+        run: |
+          # These files are only fully evaluated during the build, so a syntax
+          # error there would otherwise surface after compiling for an hour.
+          if ! make -f package/firmware/ipq-wifi/Makefile -n \
+                 "TOPDIR=$PWD" CONFIG_PACKAGE_ipq-wifi-redmi_ax3000=y >/dev/null; then
+            echo "::error ::ipq-wifi Makefile failed to parse"
+            exit 1
+          fi
+          echo "ipq-wifi Makefile parses OK"
+
       - name: Download package sources
         run: make -j"$(nproc)" download
 

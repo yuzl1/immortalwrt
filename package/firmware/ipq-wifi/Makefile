@@ -343,8 +343,8 @@ $(eval $(call generate-ipq-wifi-package,zyxel_scr50axe,Zyxel SCR50AXE))
 # Redmi AX3000 (RA81) board data is not (yet) part of the upstream
 # qca-wireless repository, so it is shipped from the local files/ directory.
 define Package/ipq-wifi-redmi_ax3000/install-overlay
-	$(call ipq-wifi-install-one,$(CURDIR)/files/board-redmi_ax3000.ipq5018,redmi_ax3000)
-	$(call ipq-wifi-install-one,$(CURDIR)/files/board-redmi_ax3000.qcn6122,redmi_ax3000)
+  $(foreach IPQ_WIFI_BOARD_FILE,$(wildcard $(CURDIR)/files/board-redmi_ax3000.*),\
+    $(call ipq-wifi-install-one,$(IPQ_WIFI_BOARD_FILE),redmi_ax3000))
 endef
 
 $(foreach PACKAGE,$(ALLWIFIPACKAGES),$(eval $(call BuildPackage,$(PACKAGE))))
