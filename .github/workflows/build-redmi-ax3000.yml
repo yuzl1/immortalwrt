@@ -97,7 +97,7 @@ jobs:
       # TEMPORARY helper: dump the arm32 kernel config as generated with the
       # real package set of this build, so it can be committed as a complete
       # config-6.18 for the arm subtarget. Removed again afterwards.
-      - name: Helper: dump the complete arm32 kernel config
+      - name: Dump the complete arm32 kernel config (temporary helper)
         run: |
           set -x
           make -j"$(nproc)" prepare-tmpinfo >/dev/null 2>&1 || true
