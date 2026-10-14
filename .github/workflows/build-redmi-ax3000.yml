@@ -43,8 +43,6 @@ jobs:
           CONFIG_TARGET_qualcommax=y
           CONFIG_TARGET_qualcommax_ipq50xx=y
           CONFIG_TARGET_qualcommax_ipq50xx_DEVICE_redmi_ax3000=y
-          CONFIG_TARGET_MULTI_PROFILE=y
-          CONFIG_TARGET_PER_DEVICE_ROOTFS=y
           CONFIG_PACKAGE_luci=y
           CONFIG_PACKAGE_luci-ssl-openssl=y
           CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
@@ -56,6 +54,15 @@ jobs:
           grep -E 'TARGET_qualcommax|DEVICE_redmi_ax3000|PACKAGE_luci' .config \
             >> "$GITHUB_STEP_SUMMARY" || true
           echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+          # Fail fast if the device did not survive defconfig, otherwise the
+          # build runs for more than an hour before failing on the metadata
+          # step with an empty json_info_files directory.
+          grep -q '^CONFIG_TARGET_qualcommax_ipq50xx_DEVICE_redmi_ax3000=y' .config || {
+            echo "::error ::redmi_ax3000 device selection missing from .config"
+            grep -E 'TARGET_qualcommax' .config || true
+            exit 1
+          }
 
       - name: Download package sources
         run: make -j"$(nproc)" download
