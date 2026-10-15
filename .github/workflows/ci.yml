@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write
     steps:
       - name: Free disk space
         run: |
@@ -70,7 +72,45 @@ jobs:
 
       - name: Build all
         run: |
-          make -j$(nproc) IGNORE_ERRORS=1
+          set -o pipefail
+          make -j$(nproc) IGNORE_ERRORS=1 V=s 2>&1 | tee /tmp/build.log
+
+      - name: Show build failure
+        if: failure()
+        run: |
+          {
+            echo '### Build failed - last 400 log lines'
+            echo '```'
+            tail -n 400 /tmp/build.log || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "::error ::disk: $(df -h / | tail -n1 | tr -s ' ')"
+          tail -n 800 /tmp/build.log > /tmp/window.log || true
+          n=$(grep -nE 'make\[[0-9]+\]: \*\*\*|ERROR: |Error [0-9]+' /tmp/window.log | head -1 | cut -d: -f1)
+          if [ -n "$n" ]; then
+            s=$((n > 9 ? n - 9 : 1))
+            sed -n "${s},${n}p" /tmp/window.log | while IFS= read -r line; do
+              echo "::error ::ctx: ${line:0:850}"
+            done
+          else
+            tail -n 10 /tmp/build.log | while IFS= read -r line; do
+              echo "::error ::tail: ${line:0:850}"
+            done
+          fi
+
+      - name: Save build log to build-log branch
+        if: failure()
+        run: |
+          [ -f /tmp/build.log ] || exit 0
+          cp /tmp/build.log build-failure.log
+          gzip -9 -f build-failure.log
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B build-log-23.05
+          git add -f build-failure.log.gz
+          git commit -m "build failure log for ${GITHUB_SHA}" || true
+          git push -f origin build-log-23.05
 
       - name: Upload bin to artifacts
         uses: actions/upload-artifact@v4
