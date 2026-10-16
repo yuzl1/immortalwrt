@@ -68,7 +68,11 @@ jobs:
 
       - name: Build toolchain
         run: |
-          make -j$(nproc) toolchain/install
+          make -j$(nproc) toolchain/install 2>&1 | tee /tmp/toolchain.log
+
+      - name: Show toolchain failure
+        if: failure()
+        run: tail -n 100 /tmp/toolchain.log || true
 
       - name: Build all
         run: |
