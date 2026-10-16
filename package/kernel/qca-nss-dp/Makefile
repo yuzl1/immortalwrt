@@ -35,6 +35,7 @@ define Build/InstallDev
 endef
 
 EXTRA_CFLAGS+= \
+	-DNSS_DP_PPE_SUPPORT \
 	-I$(STAGING_DIR)/usr/include/qca-ssdk
 
 NSS_DP_HAL_DIR:=$(PKG_BUILD_DIR)/hal
