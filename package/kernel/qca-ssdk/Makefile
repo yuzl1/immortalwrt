@@ -38,6 +38,8 @@ EXTRA_CFLAGS:= \
 	-fno-stack-protector \
 	-Wno-missing-prototypes \
 	-Wno-missing-declarations \
+	-Wno-error=incompatible-pointer-types \
+	-Wno-error=int-conversion \
 	-I$(STAGING_DIR)/usr/include
 
 MAKE_FLAGS+= \
@@ -68,6 +70,10 @@ ifeq ($(CONFIG_TARGET_SUBTARGET), "ipq60xx")
 endif
 
 ifeq ($(CONFIG_TARGET_SUBTARGET), "ipq50xx")
+    MAKE_FLAGS+= CHIP_TYPE=MP
+endif
+
+ifeq ($(CONFIG_TARGET_SUBTARGET), "arm")
     MAKE_FLAGS+= CHIP_TYPE=MP
 endif
 

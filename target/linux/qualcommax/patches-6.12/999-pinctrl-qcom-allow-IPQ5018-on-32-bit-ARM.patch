@@ -1,0 +1,24 @@
+From: yuzl1 <yuzl1@users.noreply.github.com>
+Subject: [PATCH] pinctrl: qcom: allow the IPQ5018 pin controller on 32-bit ARM
+
+The Redmi AX3000 (IPQ5018) has a 32-bit ARM bootloader, so its kernel is
+built for ARM. The driver behind the IPQ5018 TLMM block is the same as the
+other IPQ SoCs (which are all 'depends on ARM || COMPILE_TEST'); only the
+Kconfig dependency keeps it from being built on 32-bit ARM, where it is
+needed to mux the NAND, UART or MDIO pins.
+
+Signed-off-by: yuzl1 <yuzl1@users.noreply.github.com>
+---
+ drivers/pinctrl/qcom/Kconfig.msm | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/pinctrl/qcom/Kconfig.msm
++++ b/drivers/pinctrl/qcom/Kconfig.msm
+@@ -24,7 +24,7 @@ config PINCTRL_IPQ4019
+ config PINCTRL_IPQ5018
+ 	tristate "Qualcomm Technologies, Inc. IPQ5018 pin controller driver"
+-	depends on ARM64 || COMPILE_TEST
++	depends on ARM || ARM64 || COMPILE_TEST
+ 	help
+ 	  This is the pinctrl, pinmux, pinconf and gpiolib driver for
+ 	  the Qualcomm Technologies Inc. TLMM block found on the

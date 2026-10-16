@@ -109,6 +109,15 @@ define Kernel/SetNoInitramfs
 	echo "# CONFIG_INITRAMFS_PRESERVE_MTIME is not set" >> $(LINUX_DIR)/.config.set
 endef
 
+# For the 32-bit ARM build of a device whose upstream support is 64-bit only,
+# settle the merged kernel config non-interactively and keep warnings from
+# being treated as errors.
+ifneq ($(filter arm,$(SUBTARGET)),)
+  KERNEL_SETTLE_CONFIG = cd $(LINUX_DIR) && scripts/config --file .config --disable WERROR ; $(_SINGLE)$(KERNEL_MAKE) olddefconfig
+else
+  KERNEL_SETTLE_CONFIG = $(_SINGLE)$(KERNEL_MAKE) olddefconfig
+endif
+
 define Kernel/Configure/Default
 	rm -f $(LINUX_DIR)/localversion
 	$(LINUX_CONF_CMD) > $(LINUX_DIR)/.config.target
@@ -125,6 +134,7 @@ define Kernel/Configure/Default
 		cp $(LINUX_DIR)/.config.set $(LINUX_DIR)/.config; \
 		cp $(LINUX_DIR)/.config.set $(LINUX_DIR)/.config.prev; \
 	}
+	$(KERNEL_SETTLE_CONFIG)
 	$(_SINGLE) [ -d $(LINUX_DIR)/user_headers ] || $(KERNEL_MAKE) $(if $(findstring uml,$(BOARD)),ARCH=$(ARCH)) INSTALL_HDR_PATH=$(LINUX_DIR)/user_headers headers_install
 	grep '=[ym]' $(LINUX_DIR)/.config.set | LC_ALL=C sort | $(MKHASH) md5 > $(LINUX_DIR)/.vermagic
 endef
