@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - ipq50xx-mainline-kernel-6.12-openwrt-25.12
+      - ipq50xx-arm32-openwrt-25.12
   pull_request:
 
 jobs:
