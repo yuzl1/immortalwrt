@@ -37,9 +37,14 @@ endef
 EXTRA_CFLAGS+= \
 	-I$(STAGING_DIR)/usr/include/qca-ssdk
 
+NSS_DP_SOC:=$(call qstrip,$(CONFIG_TARGET_SUBTARGET))
+ifeq ($(NSS_DP_SOC),arm)
+  NSS_DP_SOC:=ipq50xx
+endif
+
 NSS_DP_HAL_DIR:=$(PKG_BUILD_DIR)/hal
 define Build/Configure
-	$(CP) $(NSS_DP_HAL_DIR)/soc_ops/$(CONFIG_TARGET_SUBTARGET)/nss_$(CONFIG_TARGET_SUBTARGET).h \
+	$(CP) $(NSS_DP_HAL_DIR)/soc_ops/$(NSS_DP_SOC)/nss_$(NSS_DP_SOC).h \
 		$(PKG_BUILD_DIR)/exports/nss_dp_arch.h
 endef
 
@@ -47,7 +52,7 @@ define Build/Compile
 	+$(KERNEL_MAKE) $(PKG_JOBS) \
 		-C "$(LINUX_DIR)" \
 		M="$(PKG_BUILD_DIR)" \
-		EXTRA_CFLAGS="$(EXTRA_CFLAGS)" SoC="$(CONFIG_TARGET_SUBTARGET)" \
+		EXTRA_CFLAGS="$(EXTRA_CFLAGS)" SoC="$(NSS_DP_SOC)" \
 		modules
 endef
 
