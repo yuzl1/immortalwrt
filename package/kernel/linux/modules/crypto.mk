@@ -996,7 +996,10 @@ KernelPackage/crypto-sha1/mediatek/mt7622=$(KernelPackage/crypto-sha1/aarch64-ce
 KernelPackage/crypto-sha1/mvebu/cortexa9=$(KernelPackage/crypto-sha1/arm-neon)
 KernelPackage/crypto-sha1/mvebu/cortexa53=$(KernelPackage/crypto-sha1/aarch64-ce)
 KernelPackage/crypto-sha1/mvebu/cortexa72=$(KernelPackage/crypto-sha1/aarch64-ce)
-KernelPackage/crypto-sha1/qualcommax=$(KernelPackage/crypto-sha1/aarch64-ce)
+KernelPackage/crypto-sha1/qualcommax/ipq50xx=$(KernelPackage/crypto-sha1/aarch64-ce)
+KernelPackage/crypto-sha1/qualcommax/ipq60xx=$(KernelPackage/crypto-sha1/aarch64-ce)
+KernelPackage/crypto-sha1/qualcommax/ipq807x=$(KernelPackage/crypto-sha1/aarch64-ce)
+KernelPackage/crypto-sha1/qualcommax/arm=$(KernelPackage/crypto-sha1/arm-neon)
 KernelPackage/crypto-sha1/rockchip/armv8=$(KernelPackage/crypto-sha1/aarch64-ce)
 
 define KernelPackage/crypto-sha1/octeon
@@ -1087,7 +1090,9 @@ KernelPackage/crypto-sha256/mediatek/filogic=$(KernelPackage/crypto-sha256/aarch
 KernelPackage/crypto-sha256/mediatek/mt7622=$(KernelPackage/crypto-sha256/aarch64-ce)
 KernelPackage/crypto-sha256/mvebu/cortexa53=$(KernelPackage/crypto-sha256/aarch64-ce)
 KernelPackage/crypto-sha256/mvebu/cortexa72=$(KernelPackage/crypto-sha256/aarch64-ce)
-KernelPackage/crypto-sha256/qualcommax=$(KernelPackage/crypto-sha256/aarch64-ce)
+KernelPackage/crypto-sha256/qualcommax/ipq50xx=$(KernelPackage/crypto-sha256/aarch64-ce)
+KernelPackage/crypto-sha256/qualcommax/ipq60xx=$(KernelPackage/crypto-sha256/aarch64-ce)
+KernelPackage/crypto-sha256/qualcommax/ipq807x=$(KernelPackage/crypto-sha256/aarch64-ce)
 KernelPackage/crypto-sha256/rockchip/armv8=$(KernelPackage/crypto-sha256/aarch64-ce)
 
 ifdef KernelPackage/crypto-sha256/$(ARCH)
@@ -1205,4 +1210,3 @@ define KernelPackage/crypto-xxhash
 endef
 
 $(eval $(call KernelPackage,crypto-xxhash))
-
