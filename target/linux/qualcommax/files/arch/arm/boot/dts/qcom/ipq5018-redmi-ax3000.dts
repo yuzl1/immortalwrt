@@ -27,6 +27,15 @@
 	model = "Redmi AX3000";
 	compatible = "redmi,ax3000", "qcom,ipq5018";
 
+	/*
+	 * The upstream ipq5018.dtsi declares a placeholder memory node with a
+	 * zero size, expecting the bootloader to fill it in. This vendor U-Boot
+	 * instead adds a /memory node of its own (as on the working 23.05 build,
+	 * whose DTS has no memory node), so drop the placeholder to avoid ending
+	 * up with a zero-sized bank and no usable RAM.
+	 */
+	/delete-node/ memory@40000000;
+
 	pmu {
 		compatible = "arm,cortex-a7-pmu";
 	};
