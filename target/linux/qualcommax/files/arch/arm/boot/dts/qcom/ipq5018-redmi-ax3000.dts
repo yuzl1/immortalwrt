@@ -7,10 +7,10 @@
  * reusing the AArch64 SoC/ESS/QCN6122 descriptions and overriding only the
  * genuinely architecture specific bits (the PMU compatible).
  *
- * The partition table is NOT provided through SMEM on this device: U-Boot
- * passes it on the kernel command line (mtdparts=nand0:...(fs),${msmparts}),
- * which is why there is no "partitions" node here and why the arm subtarget
- * disables CONFIG_MTD_QCOMSMEM_PARTS.
+ * The partition table is provided through SMEM: the vendor U-Boot reads it
+ * ("smem ram ptable found") and the kernel parses it with the qcom,smem-part
+ * compatible on the NAND chip node. The arm subtarget keeps
+ * CONFIG_MTD_QCOMSMEM_PARTS enabled for this board.
  */
 
 /dts-v1/;
@@ -52,9 +52,8 @@
 	chosen {
 		/*
 		 * Xiaomi's U-Boot sets ubi.mtd=rootfs or rootfs_1 depending on
-		 * the booted slot and passes the partition table via mtdparts,
-		 * so neither must be overridden here. Inside the UBI the kernel
-		 * is volume 0 and the rootfs is volume 1.
+		 * the booted slot. Inside the UBI the kernel is volume 0 and the
+		 * rootfs is volume 1.
 		 */
 		bootargs-append = " root=/dev/ubiblock0_1 swiotlb=1 coherent_pool=2M";
 		stdout-path = "serial0:115200n8";
@@ -151,13 +150,9 @@
 		nand-ecc-strength = <8>;
 		nand-bus-width = <8>;
 
-		/*
-		 * Deliberately no "partitions" node: it would make the kernel
-		 * ignore the mtdparts= passed by U-Boot on the command line,
-		 * and this board has no SMEM partition table to fall back on.
-		 * The UBI volume to boot from is selected by ubi.mtd=rootfs /
-		 * rootfs_1, which U-Boot also passes.
-		 */
+		partitions {
+			compatible = "qcom,smem-part";
+		};
 	};
 };
 
