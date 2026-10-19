@@ -1,0 +1,26 @@
+#!/bin/sh
+. /lib/functions.sh
+. /lib/functions/system.sh
+
+[ "$(board_name)" = "redmi,ax3000" ] || exit 0
+
+# The qca8k DSA standalone WAN port does not forward frames reliably on this
+# board: the PPPoE PADI goes out, but no PADO ever comes back. Put the port
+# into a single-port bridge so it takes the same switch path as the LAN ports.
+if [ "$(uci -q get network.wan.device)" = "wan" ]; then
+	uci -q set network.wan_bridge=device
+	uci -q set network.wan_bridge.name='br-wan'
+	uci -q set network.wan_bridge.type='bridge'
+	uci -q set network.wan_bridge.ports='wan'
+	uci -q set network.wan.device='br-wan'
+fi
+
+# Keep the ISP-facing MAC stable; PPPoE accounts are often bound to it.
+art=$(find_mtd_part "0:art")
+if [ -n "$art" ] && [ -z "$(uci -q get network.wan_bridge.macaddr)" ]; then
+	mac=$(get_mac_binary "$art" 0)
+	[ -n "$mac" ] && uci -q set network.wan_bridge.macaddr="$mac"
+fi
+
+uci -q commit network
+exit 0

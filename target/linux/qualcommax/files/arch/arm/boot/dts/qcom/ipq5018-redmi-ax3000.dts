@@ -239,6 +239,25 @@
 			partition@780000 {
 				label = "0:art";
 				reg = <0x00780000 0x00100000>;
+				read-only;
+
+				nvmem-layout {
+					compatible = "fixed-layout";
+					#address-cells = <1>;
+					#size-cells = <1>;
+
+					macaddr_art_0: macaddr@0 {
+						compatible = "mac-base";
+						#nvmem-cell-cells = <1>;
+						reg = <0x0 0x6>;
+					};
+
+					macaddr_art_6: macaddr@6 {
+						compatible = "mac-base";
+						#nvmem-cell-cells = <1>;
+						reg = <0x6 0x6>;
+					};
+				};
 			};
 
 			partition@880000 {
@@ -301,11 +320,17 @@
 /* MAC0 -> GE Phy */
 &dp1 {
 	status = "okay";
+	/delete-property/ local-mac-address;
+	nvmem-cells = <&macaddr_art_0 0>;
+	nvmem-cell-names = "mac-address";
 };
 
 /* MAC1 -> SGMII -> QCA8337 */
 &dp2 {
 	status = "okay";
+	/delete-property/ local-mac-address;
+	nvmem-cells = <&macaddr_art_6 0>;
+	nvmem-cell-names = "mac-address";
 
 	fixed-link {
 		speed = <1000>;
@@ -367,24 +392,32 @@
 				reg = <1>;
 				label = "lan1";
 				phy-handle = <&qca8337_0>;
+				nvmem-cells = <&macaddr_art_6 0>;
+				nvmem-cell-names = "mac-address";
 			};
 
 			port@2 {
 				reg = <2>;
 				label = "lan2";
 				phy-handle = <&qca8337_1>;
+				nvmem-cells = <&macaddr_art_6 1>;
+				nvmem-cell-names = "mac-address";
 			};
 
 			port@3 {
 				reg = <3>;
 				label = "lan3";
 				phy-handle = <&qca8337_2>;
+				nvmem-cells = <&macaddr_art_6 2>;
+				nvmem-cell-names = "mac-address";
 			};
 
 			port@4 {
 				reg = <4>;
 				label = "wan";
 				phy-handle = <&qca8337_3>;
+				nvmem-cells = <&macaddr_art_0 0>;
+				nvmem-cell-names = "mac-address";
 			};
 
 			/*
