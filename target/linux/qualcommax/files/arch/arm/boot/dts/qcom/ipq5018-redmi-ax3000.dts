@@ -7,10 +7,14 @@
  * reusing the AArch64 SoC/ESS/QCN6122 descriptions and overriding only the
  * genuinely architecture specific bits (the PMU compatible).
  *
- * The partition table is provided through SMEM: the vendor U-Boot reads it
- * ("smem ram ptable found") and the kernel parses it with the qcom,smem-part
- * compatible on the NAND chip node. The arm subtarget keeps
- * CONFIG_MTD_QCOMSMEM_PARTS enabled for this board.
+ * The vendor U-Boot keeps a single UBI device over the whole 0xa80000-0x7f00000
+ * region (932 PEBs) and its fdt_fixup_qpic hook merely injects the boot
+ * partitions. It also auto-resizes the rootfs_data volume to fill those 932
+ * PEBs on every boot, so the kernel has to describe the same layout: the SMEM
+ * table splits that area into 36M rootfs/rootfs_1/overlay/data slots and
+ * attaching UBI to one of them fails with "too large reserved_pebs".
+ * Describe the layout explicitly instead, with one 'rootfs' partition that
+ * covers the full UBI device.
  */
 
 /dts-v1/;
@@ -151,7 +155,122 @@
 		nand-bus-width = <8>;
 
 		partitions {
-			compatible = "qcom,smem-part";
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@0 {
+				label = "0:sbl1";
+				reg = <0x00000000 0x00080000>;
+				read-only;
+			};
+
+			partition@80000 {
+				label = "0:mibib";
+				reg = <0x00080000 0x00080000>;
+				read-only;
+			};
+
+			partition@100000 {
+				label = "0:bootconfig";
+				reg = <0x00100000 0x00040000>;
+				read-only;
+			};
+
+			partition@140000 {
+				label = "0:bootconfig1";
+				reg = <0x00140000 0x00040000>;
+				read-only;
+			};
+
+			partition@180000 {
+				label = "0:qsee";
+				reg = <0x00180000 0x00100000>;
+				read-only;
+			};
+
+			partition@280000 {
+				label = "0:qsee_1";
+				reg = <0x00280000 0x00100000>;
+				read-only;
+			};
+
+			partition@380000 {
+				label = "0:devcfg";
+				reg = <0x00380000 0x00040000>;
+				read-only;
+			};
+
+			partition@3c0000 {
+				label = "0:devcfg_1";
+				reg = <0x003c0000 0x00040000>;
+				read-only;
+			};
+
+			partition@400000 {
+				label = "0:cdt";
+				reg = <0x00400000 0x00040000>;
+				read-only;
+			};
+
+			partition@440000 {
+				label = "0:cdt_1";
+				reg = <0x00440000 0x00040000>;
+				read-only;
+			};
+
+			partition@480000 {
+				label = "0:appsblenv";
+				reg = <0x00480000 0x00080000>;
+			};
+
+			partition@500000 {
+				label = "0:appsbl";
+				reg = <0x00500000 0x00140000>;
+				read-only;
+			};
+
+			partition@640000 {
+				label = "0:appsbl_1";
+				reg = <0x00640000 0x00140000>;
+				read-only;
+			};
+
+			partition@780000 {
+				label = "0:art";
+				reg = <0x00780000 0x00100000>;
+			};
+
+			partition@880000 {
+				label = "0:training";
+				reg = <0x00880000 0x00080000>;
+				read-only;
+			};
+
+			partition@900000 {
+				label = "bdata";
+				reg = <0x00900000 0x00080000>;
+			};
+
+			partition@980000 {
+				label = "crash";
+				reg = <0x00980000 0x00080000>;
+			};
+
+			partition@a00000 {
+				label = "crash_log";
+				reg = <0x00a00000 0x00080000>;
+			};
+
+			/*
+			 * U-Boot attaches UBI to the whole 0xa80000-0x7f00000
+			 * area (932 PEBs); keep one partition of that size so
+			 * the volume table it writes is consistent.
+			 */
+			partition@a80000 {
+				label = "rootfs";
+				reg = <0x00a80000 0x07480000>;
+			};
 		};
 	};
 };
