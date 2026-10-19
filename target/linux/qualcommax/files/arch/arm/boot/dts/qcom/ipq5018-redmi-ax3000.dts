@@ -40,6 +40,14 @@
 	 */
 	/delete-node/ memory@40000000;
 
+	/*
+	 * The nowifi build does not load the Q6/WCSS DSP, so its 48 MiB
+	 * reserved-memory region is not needed - free it for the system.
+	 */
+	reserved-memory {
+		/delete-node/ wcss@4b000000;
+	};
+
 	pmu {
 		compatible = "arm,cortex-a7-pmu";
 	};
@@ -478,6 +486,8 @@
 };
 
 &q6v5_wcss {
+	/delete-property/ memory-region;
+
 	/* QCN6122 (PD2) is held in reset by GPIO 27 */
 	boot-args = </*       type: */ 0x2 /* PCIE1 */
 		     /*     length: */ 4
