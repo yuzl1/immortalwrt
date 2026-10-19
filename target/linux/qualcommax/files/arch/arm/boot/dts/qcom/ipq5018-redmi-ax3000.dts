@@ -522,7 +522,13 @@
 &wifi {
 	status = "okay";
 
-	/* IPQ5000 2.4 GHz; board id is reported by the target itself */
+	/*
+	 * IPQ5000 2.4 GHz. The board-2.bin shipped by ipq-wifi-redmi_ax3000
+	 * carries entries for board-id 16 (M79/IPA) and 36 (M81/EPA); this
+	 * RA81 has no wl_pa_type in bdata, so use the 16 entry like the 23.05
+	 * ath11k board_id hotplug script did.
+	 */
+	qcom,board_id = <0x10>;
 	qcom,rproc = <&q6_wcss_pd1>;
 	qcom,userpd-subsys-name = "q6v5_wcss_userpd1";
 	qcom,ath11k-fw-memory-mode = <2>;
@@ -533,6 +539,7 @@
 	status = "okay";
 
 	/* QCN6102 / QCN6122 5 GHz */
+	qcom,board_id = <0x60>;
 	qcom,rproc = <&q6_wcss_pd2>;
 	qcom,userpd-subsys-name = "q6v5_wcss_userpd2";
 	qcom,ath11k-fw-memory-mode = <2>;
