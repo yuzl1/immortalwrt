@@ -48,6 +48,8 @@ jobs:
             CONFIG_PACKAGE_luci-ssl-openssl=y
             CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
             CONFIG_PACKAGE_luci-i18n-package-manager-zh-cn=y
+
+            CONFIG_PACKAGE_kmod-tun=y
           EOF
           make defconfig
 
