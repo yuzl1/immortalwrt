@@ -50,6 +50,9 @@ jobs:
             CONFIG_PACKAGE_luci-i18n-package-manager-zh-cn=y
 
             CONFIG_PACKAGE_kmod-tun=y
+
+            # The video feed is not published for 25.12.2 on the mirrors.
+            # CONFIG_FEED_video is not set
           EOF
           make defconfig
 
